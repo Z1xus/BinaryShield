@@ -37,8 +37,19 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    - name: Prepare Release Files
+      run: |
+        mkdir release
+        copy ${{github.workspace}}/build/${{env.BUILD_TYPE}}/binaryshield.exe release\
+        copy ${{github.workspace}}/vcpkg/installed/x64-windows/bin/Zydis.dll release\
+        copy ${{github.workspace}}/vcpkg/installed/x64-windows/bin/zycore.dll release\
+
+    - name: Create ZIP Archive
+      run: |
+        Compress-Archive -Path release\* -DestinationPath binaryshield.zip
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: binaryshield
-        path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/binaryshield.exe 
+        path: binaryshield.zip
